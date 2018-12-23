@@ -7,6 +7,7 @@
 #include <list>
 #include <stdexcept>
 #include <iostream>
+#include <cstdlib>
 #include "third-party/picohttpparser.h"
 #include "ConnectionHandler.h"
 #include "Connection/DirectConnection.h"
@@ -66,6 +67,8 @@ void ConnectionHandler::add_connection(size_t requestEndpos) {
             try {
                 forwaddr = Utils::get_sockaddr(url_port.first.c_str(), forward_port);
             } catch (std::invalid_argument &e) {
+                printf("dddaaa\n");
+                exit(0);
                 close(client_sock_);
                 close(forwarding_sock);
                 return;
@@ -77,18 +80,18 @@ void ConnectionHandler::add_connection(size_t requestEndpos) {
 #endif
                 connection_ = new DirectConnection(client_sock_, forwarding_sock, newRequest,
                                                    &forwaddr);
-                a = std::string(path,path_len);
+                a = std::string(path, path_len);
             } else {
 #ifdef DEBUG
                 printf("Caching connection to  %.*s\n", (int) path_len, path);
 #endif
                 connection_ = new CachingConnection(client_sock_, forwarding_sock, newRequest, &forwaddr, cache);
-                a = std::string(path,path_len);
+                a = std::string(path, path_len);
             }
             return;
         } else {
             connection_ = new CachedConnection(client_sock_, cache);
-            a = std::string(path,path_len);
+            a = std::string(path, path_len);
 #ifdef DEBUG
             printf("Cached connection to %.*s\n", (int) path_len, path);
 #endif
@@ -105,7 +108,7 @@ void ConnectionHandler::add_connection(size_t requestEndpos) {
 bool ConnectionHandler::read_request() {
     size_t endpos = -1;
     char buf[MAX_REQUEST_SIZE];
-    ssize_t len = recv(client_sock_, buf, MAX_REQUEST_SIZE,0);
+    ssize_t len = recv(client_sock_, buf, MAX_REQUEST_SIZE, 0);
     if (len == 0 || len == -1) {
         //TODO connection off
         pthread_mutex_lock(&mutex_);
@@ -129,23 +132,23 @@ bool ConnectionHandler::read_request() {
 }
 
 ConnectionHandler::ConnectionHandler(CacheController *cacheController, int client_sock) : cacheController_(
-        cacheController), client_sock_(client_sock), done_(false) {
+        cacheController), client_sock_(client_sock), done_(false), connection_(NULL) {
     pthread_mutex_init(&mutex_, NULL);
-    a = client_sock+'0';
+    a = client_sock + '0';
 }
 
 
 void ConnectionHandler::run() {
     while (!read_request());
-    if(!isDone()) {
+    if (!isDone() && connection_ != NULL) {
         while (connection_->isActive()) {
             connection_->exchange_data();
         }
+        delete (connection_);
+        pthread_mutex_lock(&mutex_);
+        done_ = true;
+        pthread_mutex_unlock(&mutex_);
     }
-    delete (connection_);
-    pthread_mutex_lock(&mutex_);
-    done_ = true;
-    pthread_mutex_unlock(&mutex_);
 }
 
 ConnectionHandler::~ConnectionHandler() {
