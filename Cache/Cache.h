@@ -14,8 +14,6 @@ class Cache {
     pthread_mutex_t mutex_;
 public:
 
-    void lock();
-    void unlock();
     explicit Cache(std::string &);
 
     ~Cache();

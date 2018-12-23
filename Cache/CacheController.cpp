@@ -26,16 +26,13 @@ Cache *CacheController::getCache(std::string path) {
         return cache;
         //else if we have cache
     }
-    (*cacheEntry->second)->lock();
     if ((*cacheEntry->second)->getState() == Cache::CACHED) {
         cache = (*cacheEntry->second);
         cache->markUsing();
         pthread_mutex_unlock(&mutex_);
-        (*cacheEntry->second)->unlock();
         return cache;
         //else if cache don't downloaded fully
     } else if ((*cacheEntry->second)->getState() == Cache::DROPPED) {
-        (*cacheEntry->second)->unlock();
         delete (*(cacheEntry->second));
         cacheQueue_.erase(cacheEntry->second);
         cache = new Cache(path);
@@ -46,27 +43,21 @@ Cache *CacheController::getCache(std::string path) {
     }
     //if no cacheable
     pthread_mutex_unlock(&mutex_);
-    (*cacheEntry->second)->unlock();
     return NULL;
 }
 
 bool CacheController::dropCache() {
-    pthread_mutex_lock(&mutex_);
     for (CacheQueue::iterator it = cacheQueue_.begin(); it != cacheQueue_.end(); it++) {
-        (*it)->lock();
         if ((*it)->getState() == Cache::DROPPED || !(*it)->isUsing()) {
             cacheMap_.erase(cacheMap_.find((*it)->getPath()));
 #ifdef DEBUG
             std::cout << "erased cache " << (*it)->getPath() << std::endl;
 #endif
-            (*it)->unlock();
             delete (*it);
             cacheQueue_.erase(it);
             return true;
         }
-        (*it)->unlock();
     }
-    pthread_mutex_unlock(&mutex_);
 #ifdef DEBUG
     std::cout << "Can't erase nothing" << std::endl;
 #endif

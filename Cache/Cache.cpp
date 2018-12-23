@@ -83,11 +83,5 @@ Cache::~Cache() {
     pthread_mutex_destroy(&mutex_);
 }
 
-void Cache::lock() {
-    pthread_mutex_lock(&mutex_);
-}
 
-void Cache::unlock() {
-    pthread_mutex_unlock(&mutex_);
-}
 
