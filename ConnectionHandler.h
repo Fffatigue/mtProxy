@@ -23,7 +23,6 @@ private:
 
 public:
     ConnectionHandler(CacheController *cacheController, int client_sock);
-    std::string a;
     void run();
 
     static void *run(void *handler) {

@@ -23,10 +23,12 @@ void Proxy::run() {
                 delete (*it);
                 connectionHandlers_.erase(it++);
             } else {
-                std::cout<<"ne off "<<(*it)->a<<std::endl;
                 it++;
             }
         }
+#ifdef DEBUG
+        printf("current number of connections : %d\n", connectionHandlers_.size());
+#endif
         process_connections();
     }
 

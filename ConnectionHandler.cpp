@@ -34,7 +34,6 @@ void ConnectionHandler::add_connection(size_t requestEndpos) {
     //if not http 1.0
     if (minor_version != 0) {
         connection_ = new ErrorConnection(client_sock_, "HTTP/1.0 505 HTTP Version Not Supported\r\n\r\n");
-        a = "505";
         return;
     }
     //if method GET
@@ -54,7 +53,6 @@ void ConnectionHandler::add_connection(size_t requestEndpos) {
             printf("Error connection 404\n");
 #endif
             connection_ = new ErrorConnection(client_sock_, "HTTP/1.0 404 Not Found\r\n\r\n");
-            a = "404";
             return;
         }
         Cache *cache = cacheController_->getCache(std::string(path, path_len));
@@ -67,8 +65,6 @@ void ConnectionHandler::add_connection(size_t requestEndpos) {
             try {
                 forwaddr = Utils::get_sockaddr(url_port.first.c_str(), forward_port);
             } catch (std::invalid_argument &e) {
-                printf("dddaaa\n");
-                exit(0);
                 close(client_sock_);
                 close(forwarding_sock);
                 return;
@@ -80,18 +76,15 @@ void ConnectionHandler::add_connection(size_t requestEndpos) {
 #endif
                 connection_ = new DirectConnection(client_sock_, forwarding_sock, newRequest,
                                                    &forwaddr);
-                a = std::string(path, path_len);
             } else {
 #ifdef DEBUG
                 printf("Caching connection to  %.*s\n", (int) path_len, path);
 #endif
                 connection_ = new CachingConnection(client_sock_, forwarding_sock, newRequest, &forwaddr, cache);
-                a = std::string(path, path_len);
             }
             return;
         } else {
             connection_ = new CachedConnection(client_sock_, cache);
-            a = std::string(path, path_len);
 #ifdef DEBUG
             printf("Cached connection to %.*s\n", (int) path_len, path);
 #endif
@@ -101,7 +94,6 @@ void ConnectionHandler::add_connection(size_t requestEndpos) {
         printf("Error connection 501\n");
 #endif
         connection_ = new ErrorConnection(client_sock_, "HTTP/1.0 501 Not Implemented\r\n\r\n");
-        a = "501";
     }
 }
 
@@ -134,7 +126,6 @@ bool ConnectionHandler::read_request() {
 ConnectionHandler::ConnectionHandler(CacheController *cacheController, int client_sock) : cacheController_(
         cacheController), client_sock_(client_sock), done_(false), connection_(NULL) {
     pthread_mutex_init(&mutex_, NULL);
-    a = client_sock + '0';
 }
 
 
@@ -145,10 +136,10 @@ void ConnectionHandler::run() {
             connection_->exchange_data();
         }
         delete (connection_);
+    }
         pthread_mutex_lock(&mutex_);
         done_ = true;
         pthread_mutex_unlock(&mutex_);
-    }
 }
 
 ConnectionHandler::~ConnectionHandler() {
