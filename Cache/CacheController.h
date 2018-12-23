@@ -13,12 +13,14 @@
 class CacheController {
     typedef std::list<Cache *> CacheQueue;
     typedef std::map<std::string, CacheQueue::iterator> CacheMap;
-    const static int MAX_CACHE_ENTRIES = 50;
+    const static int MAX_CACHE_ENTRIES = 10;
     CacheMap cacheMap_;
     CacheQueue cacheQueue_;
+    pthread_mutex_t mutex_;
 private:
     bool dropCache();
 public:
+    CacheController();
     Cache *getCache(std::string Path);
 };
 

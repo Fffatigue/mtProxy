@@ -13,6 +13,9 @@ class Cache {
     static const int MAX_CACHE_SIZE = 1000000;
     pthread_mutex_t mutex_;
 public:
+
+    void lock();
+    void unlock();
     explicit Cache(std::string &);
 
     ~Cache();

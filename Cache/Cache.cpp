@@ -21,10 +21,10 @@ int Cache::getCache(char *buf, int offset, int length) {
     return length - offset;
 }
 
- int Cache::putCache(char *buf, int length) {
-     pthread_mutex_lock(&mutex_);
+int Cache::putCache(char *buf, int length) {
+    pthread_mutex_lock(&mutex_);
     int state = state_;
-     pthread_mutex_unlock(&mutex_);
+    pthread_mutex_unlock(&mutex_);
     if (state_ != CACHING) {
         return state;
     }
@@ -81,5 +81,13 @@ std::string &Cache::getPath() {
 
 Cache::~Cache() {
     pthread_mutex_destroy(&mutex_);
+}
+
+void Cache::lock() {
+    pthread_mutex_lock(&mutex_);
+}
+
+void Cache::unlock() {
+    pthread_mutex_unlock(&mutex_);
 }
 
