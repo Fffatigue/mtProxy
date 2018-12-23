@@ -153,4 +153,10 @@ bool ConnectionHandler::isDone() {
     return done;
 }
 
+void *ConnectionHandler::run(void *handler) {
+    pthread_detach(pthread_self());
+    ConnectionHandler *connectionHandler = (ConnectionHandler *) handler;
+    connectionHandler->run();
+}
+
 

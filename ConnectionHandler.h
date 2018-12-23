@@ -25,10 +25,7 @@ public:
     ConnectionHandler(CacheController *cacheController, int client_sock);
     void run();
 
-    static void *run(void *handler) {
-        ConnectionHandler *connectionHandler = (ConnectionHandler *) handler;
-        connectionHandler->run();
-    }
+    static void *run(void *handler);
 
     void add_connection(size_t endpos);
 
