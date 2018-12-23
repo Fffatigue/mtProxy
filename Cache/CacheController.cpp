@@ -32,7 +32,7 @@ Cache *CacheController::getCache(std::string path) {
         pthread_mutex_unlock(&mutex_);
         return cache;
         //else if cache don't downloaded fully
-    } else if ((*cacheEntry->second)->getState() == Cache::DROPPED) {
+    } else if ((*cacheEntry->second)->getState() == Cache::DROPPED && !cache->isUsing()) {
         delete (*(cacheEntry->second));
         cacheQueue_.erase(cacheEntry->second);
         cache = new Cache(path);
