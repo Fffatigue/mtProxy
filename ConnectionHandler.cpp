@@ -136,6 +136,7 @@ void ConnectionHandler::run() {
             connection_->exchange_data();
         }
         delete (connection_);
+        connection_ = NULL;
     }
         pthread_mutex_lock(&mutex_);
         done_ = true;
@@ -144,6 +145,9 @@ void ConnectionHandler::run() {
 
 ConnectionHandler::~ConnectionHandler() {
     pthread_mutex_destroy(&mutex_);
+    if(connection_!=NULL){
+        delete(connection_);
+    }
 }
 
 bool ConnectionHandler::isDone() {

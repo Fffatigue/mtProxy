@@ -9,6 +9,7 @@
 #include <cstring>
 #include <netinet/in.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 #include "Server.h"
 #include "Utils.h"
@@ -46,5 +47,9 @@ int Server::accept() {
 
 int Server::get_listen_sockfd() {
     return listen_sockfd_;
+}
+
+Server::~Server() {
+    close(listen_sockfd_);
 }
 

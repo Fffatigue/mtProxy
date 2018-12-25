@@ -20,6 +20,8 @@ private:
 public:
     explicit Proxy(int listen_port);
 
+    ~Proxy();
+
     void run();
 };
 

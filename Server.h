@@ -8,6 +8,8 @@ class Server {
 public:
     explicit Server(int listen_port);
 
+    ~Server();
+
     int accept();
 
     int get_listen_sockfd();

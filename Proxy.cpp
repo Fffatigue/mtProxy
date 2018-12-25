@@ -48,4 +48,11 @@ void Proxy::process_connections() {
     connectionHandlers_.push_back(connectionHandler);
 }
 
+Proxy::~Proxy() {
+    for (std::list<ConnectionHandler *>::iterator it = connectionHandlers_.begin();
+         it != connectionHandlers_.end();){
+        delete (*it);
+    }
+}
+
 

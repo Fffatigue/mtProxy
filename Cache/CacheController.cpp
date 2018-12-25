@@ -69,3 +69,10 @@ CacheController::CacheController() {
 
 }
 
+CacheController::~CacheController() {
+    pthread_mutex_destroy(&mutex_);
+    for (CacheQueue::iterator it = cacheQueue_.begin(); it != cacheQueue_.end(); it++) {
+        delete(*it);
+    }
+}
+
