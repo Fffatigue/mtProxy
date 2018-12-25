@@ -17,6 +17,7 @@ class ConnectionHandler {
     int client_sock_;
     pthread_mutex_t mutex_;
     bool done_;
+    bool stop_;
 private:
 
     bool read_request();

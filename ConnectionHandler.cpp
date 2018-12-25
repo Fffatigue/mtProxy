@@ -103,9 +103,7 @@ bool ConnectionHandler::read_request() {
     ssize_t len = recv(client_sock_, buf, MAX_REQUEST_SIZE, 0);
     if (len == 0 || len == -1) {
         //TODO connection off
-        pthread_mutex_lock(&mutex_);
-        done_ = true;
-        pthread_mutex_unlock(&mutex_);
+        stop_ = true;
         return true;
     }
     for (ssize_t i = 0; i < len; i++) {
@@ -124,14 +122,14 @@ bool ConnectionHandler::read_request() {
 }
 
 ConnectionHandler::ConnectionHandler(CacheController *cacheController, int client_sock) : cacheController_(
-        cacheController), client_sock_(client_sock), done_(false), connection_(NULL) {
+        cacheController), client_sock_(client_sock), done_(false),stop_(false), connection_(NULL) {
     pthread_mutex_init(&mutex_, NULL);
 }
 
 
 void ConnectionHandler::run() {
     while (!read_request());
-    if (!isDone() && connection_ != NULL) {
+    if (!stop_ && connection_ != NULL) {
         while (connection_->isActive()) {
             connection_->exchange_data();
         }
